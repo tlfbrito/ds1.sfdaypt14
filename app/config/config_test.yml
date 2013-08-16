@@ -14,3 +14,7 @@ web_profiler:
 
 swiftmailer:
     disable_delivery: true
+
+doctrine:
+    dbal:
+        path: '%kernel.cache_dir%/deepspaceone.test.sqlite'

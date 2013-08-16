@@ -1,0 +1,38 @@
+#!/bin/bash
+
+function run {
+    typeset cmnd="$*"
+    typeset result
+
+    eval $cmnd
+    result=$?
+
+    if [ $result != 0 ]; then
+        echo "Error when running command: '$cmnd'"
+        exit $result
+    fi
+}
+
+function rebase {
+    typeset tag="$1"
+    typeset ontoTag="$2"
+    echo "Rebasing $tag onto $ontoTag..."
+    run git checkout $tag
+    run git rebase --onto $ontoTag HEAD^1
+    run git tag -f $tag
+}
+
+run git checkout master
+run git tag -f start
+
+rebase task1-complete start
+rebase task2-complete task1-complete
+rebase task3-complete task2-complete
+rebase task4-complete task3-complete
+rebase task5-complete task4-complete
+rebase task6-complete task5-complete
+rebase task7-complete task6-complete
+rebase task8-complete task7-complete
+
+run git checkout final
+run git reset --hard task8-complete

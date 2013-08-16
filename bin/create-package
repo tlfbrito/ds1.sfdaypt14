@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function run {
+    typeset cmnd="$*"
+    typeset result
+
+    eval $cmnd
+    result=$?
+
+    if [ $result != 0 ]; then
+        echo "Error when running command: '$cmnd'"
+        exit $result
+    fi
+}
+
+DIR=$(readlink -f $(dirname $0)/..)
+NAME="$1"
+
+if [ -z "$NAME" ]; then
+    echo "USAGE: create-package <package-name>"
+    exit 1
+fi
+
+# Checkout the project in a new directory
+run mkdir $DIR/tmp
+run git clone $DIR $DIR/tmp/$NAME
+run cp $DIR/app/config/parameters.yml $DIR/tmp/$NAME/app/config/parameters.yml
+run cd $DIR/tmp/$NAME
+
+# Make sure both branches are loaded from origin
+run git checkout final
+run git checkout master
+
+# Remove the remote which points to the local file system
+run git remote rm origin
+
+# Package the whole thing
+run cd $DIR/tmp
+run zip -r $DIR/$NAME.zip $NAME
+
+# Clean up
+run rm -rf $DIR/tmp

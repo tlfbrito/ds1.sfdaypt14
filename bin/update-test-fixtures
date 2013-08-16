@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ROOT=`dirname $0 | xargs -0 dirname`
+
+$ROOT/app/console doctrine:database:drop --force --env=dev
+$ROOT/app/console doctrine:schema:create --env=dev
+$ROOT/app/console doctrine:fixtures:load --append --env=dev
+
+sqlite3 $ROOT/app/data/deepspaceone.sqlite .dump > $ROOT/app/data/test-fixtures.sql
+

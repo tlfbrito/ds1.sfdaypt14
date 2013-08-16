@@ -1,9 +1,18 @@
 /web/bundles/
+/web/css/
+/web/js/
+/web/fonts/
 /app/bootstrap.php.cache
 /app/cache/*
 /app/config/parameters.yml
 /app/logs/*
+/app/data/*.sqlite
+/app/Resources/assets/components/*
 /build/
 /vendor/
 /bin/
 /composer.phar
+/*.zip
+
+# Don't keep the lock file to prevent problems with ICU
+/composer.lock

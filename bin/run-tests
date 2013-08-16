@@ -1,0 +1,21 @@
+#!/bin/bash
+
+BINPATH=`dirname $0`
+
+git checkout task2
+phpunit --group task1
+
+git checkout task3
+phpunit --group task2
+
+git checkout task4
+phpunit --group task3
+
+git checkout task5
+phpunit --group task4
+
+git checkout task6
+phpunit --group task5
+
+git checkout final
+phpunit --group task6

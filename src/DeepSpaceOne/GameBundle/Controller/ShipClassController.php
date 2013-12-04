@@ -3,6 +3,7 @@
 namespace DeepSpaceOne\GameBundle\Controller;
 
 use DeepSpaceOne\GameBundle\Entity\ShipClass;
+use DeepSpaceOne\GameBundle\Form\ShipClassType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -165,34 +166,19 @@ class ShipClassController extends Controller
     }
 
     /**
-     * Creates a preconfigured form builder for editing ShipClass entities.
-     *
-     * @param ShipClass $class The ship class
-     *
-     * @return \Symfony\Component\Form\FormBuilderInterface The form builder
-     */
-    public function createShipClassFormBuilder(ShipClass $class)
-    {
-        return $this->createFormBuilder($class, array('data_class' => '\DeepSpaceOne\GameBundle\Entity\ShipClass'))
-            ->add('name')
-            ->add('crewSize')
-            ->add('equipment', 'integer', array('property_path' => 'equipmentCapacity'))
-            ->add('payload', 'integer', array('property_path' => 'payloadCapacity'))
-            ->add('price')
-        ;
-    }
-
-    /**
      * Creates a form for creating new ShipClass entities.
      *
      * @return \Symfony\Component\Form\FormInterface The form
      */
     private function createCreateForm()
     {
-        return $this->createShipClassFormBuilder(new ShipClass())
-            ->setAction($this->generateUrl('classes_create'))
-            ->add('create', 'submit')
-            ->getForm();
+        $form = $this->createForm(new ShipClassType(), new ShipClass(), array(
+            'action' => $this->generateUrl('classes_create'),
+        ));
+
+        $form->add('create', 'submit');
+
+        return $form;
     }
 
     /**
@@ -204,11 +190,14 @@ class ShipClassController extends Controller
      */
     private function createEditForm(ShipClass $class)
     {
-        return $this->createShipClassFormBuilder($class)
-            ->setAction($this->generateUrl('classes_update', array('id' => $class->getId())))
-            ->setMethod('PUT')
-            ->add('update', 'submit')
-            ->getForm();
+        $form = $this->createForm(new ShipClassType(), new ShipClass(), array(
+            'action' => $this->generateUrl('classes_update', array('id' => $class->getId())),
+            'method' => 'PUT',
+        ));
+
+        $form->add('update', 'submit');
+
+        return $form;
     }
 
     /**

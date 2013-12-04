@@ -58,6 +58,7 @@ class Payload
      * @Column(type="integer", nullable=false)
      *
      * @Assert\NotNull
+     * @Assert\Range(min=1, minMessage="Please add at least 1 ton.")
      *
      * @var integer
      */

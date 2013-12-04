@@ -8,9 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Range;
 
 /**
  * Handles the ship class CRUD operations.
@@ -69,12 +66,7 @@ class ShipClassController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $class = new ShipClass();
-            $class->setName($form->get('name')->getData());
-            $class->setCrewSize($form->get('crewSize')->getData());
-            $class->setEquipmentCapacity($form->get('equipment')->getData());
-            $class->setPayloadCapacity($form->get('payload')->getData());
-            $class->setPrice($form->get('price')->getData());
+            $class = $form->getData();
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($class);
@@ -122,12 +114,6 @@ class ShipClassController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isValid()) {
-            $class->setName($editForm->get('name')->getData());
-            $class->setCrewSize($editForm->get('crewSize')->getData());
-            $class->setEquipmentCapacity($editForm->get('equipment')->getData());
-            $class->setPayloadCapacity($editForm->get('payload')->getData());
-            $class->setPrice($editForm->get('price')->getData());
-
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
@@ -181,41 +167,18 @@ class ShipClassController extends Controller
     /**
      * Creates a preconfigured form builder for editing ShipClass entities.
      *
+     * @param ShipClass $class The ship class
+     *
      * @return \Symfony\Component\Form\FormBuilderInterface The form builder
      */
-    public function createShipClassFormBuilder()
+    public function createShipClassFormBuilder(ShipClass $class)
     {
-        return $this->createFormBuilder()
-            ->add('name', null, array(
-                'constraints' => array(
-                    new NotNull(),
-                    new Length(array('min' => 3, 'minMessage' => 'Please enter at least 3 characters.')),
-                ),
-            ))
-            ->add('crewSize', 'integer', array(
-                'constraints' => array(
-                    new NotNull(),
-                    new Range(array('min' => 0, 'minMessage' => 'The number of crew members cannot be negative.')),
-                ),
-            ))
-            ->add('equipment', 'integer', array(
-                'constraints' => array(
-                    new NotNull(),
-                    new Range(array('min' => 0, 'minMessage' => 'The number of mount points cannot be negative.')),
-                ),
-            ))
-            ->add('payload', 'integer', array(
-                'constraints' => array(
-                    new NotNull(),
-                    new Range(array('min' => 0, 'minMessage' => 'The payload capacity cannot be negative.')),
-                ),
-            ))
-            ->add('price', 'integer', array(
-                'constraints' => array(
-                    new NotNull(),
-                    new Range(array('min' => 1, 'minMessage' => 'The ship\'s price should be 1 or more.')),
-                ),
-            ))
+        return $this->createFormBuilder($class, array('data_class' => '\DeepSpaceOne\GameBundle\Entity\ShipClass'))
+            ->add('name')
+            ->add('crewSize')
+            ->add('equipment', 'integer', array('property_path' => 'equipmentCapacity'))
+            ->add('payload', 'integer', array('property_path' => 'payloadCapacity'))
+            ->add('price')
         ;
     }
 
@@ -226,15 +189,9 @@ class ShipClassController extends Controller
      */
     private function createCreateForm()
     {
-        return $this->createShipClassFormBuilder()
+        return $this->createShipClassFormBuilder(new ShipClass())
             ->setAction($this->generateUrl('classes_create'))
             ->add('create', 'submit')
-            ->setData(array(
-                'crewSize' => 2,
-                'equipment' => 2,
-                'payload' => 50,
-                'price' => 100,
-            ))
             ->getForm();
     }
 
@@ -247,17 +204,10 @@ class ShipClassController extends Controller
      */
     private function createEditForm(ShipClass $class)
     {
-        return $this->createShipClassFormBuilder()
+        return $this->createShipClassFormBuilder($class)
             ->setAction($this->generateUrl('classes_update', array('id' => $class->getId())))
             ->setMethod('PUT')
             ->add('update', 'submit')
-            ->setData(array(
-                'name' => $class->getName(),
-                'crewSize' => $class->getCrewSize(),
-                'equipment' => $class->getEquipmentCapacity(),
-                'payload' => $class->getPayloadCapacity(),
-                'price' => $class->getPrice(),
-            ))
             ->getForm();
     }
 

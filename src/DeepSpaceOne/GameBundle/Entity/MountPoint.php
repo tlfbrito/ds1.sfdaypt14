@@ -55,8 +55,9 @@ class MountPoint
      */
     private $equipment;
 
-    public function __construct(Equipment $equipment = null)
+    public function __construct(Ship $ship, Equipment $equipment = null)
     {
+        $this->ship = $ship;
         $this->equipment = $equipment;
     }
 
@@ -66,14 +67,6 @@ class MountPoint
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @param \DeepSpaceOne\GameBundle\Entity\Ship $ship
-     */
-    public function setShip($ship)
-    {
-        $this->ship = $ship;
     }
 
     /**

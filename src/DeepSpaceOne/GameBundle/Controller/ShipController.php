@@ -65,7 +65,7 @@ class ShipController extends Controller
         $form = $this->createCreateForm();
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->get('buy')->isClicked() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($form->getData());
             $em->flush();
@@ -110,7 +110,7 @@ class ShipController extends Controller
         $editForm = $this->createEditForm($ship);
         $editForm->handleRequest($request);
 
-        if ($editForm->isValid()) {
+        if ($editForm->get('update')->isClicked() && $editForm->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 

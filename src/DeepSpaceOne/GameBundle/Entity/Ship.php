@@ -88,10 +88,9 @@ class Ship
 
     public function __construct(ShipClass $class = null)
     {
-        $this->class = $class;
+        $this->setClass($class);
 
         $this->clearPayload();
-        $this->clearMountPoints();
     }
 
 
@@ -125,6 +124,18 @@ class Ship
     public function setClass(ShipClass $class)
     {
         $this->class = $class;
+
+        if (null === $this->mountPoints) {
+            $this->mountPoints = new ArrayCollection();
+        }
+
+        while (count($this->mountPoints) > $class->getEquipmentCapacity()) {
+            $this->mountPoints->remove(count($this->mountPoints) - 1);
+        }
+
+        while (count($this->mountPoints) < $class->getEquipmentCapacity()) {
+            $this->mountPoints[] = new MountPoint($this);
+        }
     }
 
     /**
@@ -144,33 +155,24 @@ class Ship
     }
 
     /**
-     * @param MountPoint $mountPoint
+     * Sets the equipment mounted into a specific slot.
+     *
+     * @param integer   $offset
+     * @param Equipment $equipment
      */
-    public function addMountPoint(MountPoint $mountPoint)
+    public function setEquipment($offset, Equipment $equipment = null)
     {
-        $this->mountPoints[] = $mountPoint;
-
-        $mountPoint->setShip($this);
+        $this->mountPoints[$offset]->setEquipment($equipment);
     }
 
     /**
-     * @param MountPoint $mountPoint
+     * @param integer $offset
+     *
+     * @return Equipment
      */
-    public function removeMountPoint(MountPoint $mountPoint)
+    public function getEquipment($offset)
     {
-        $this->mountPoints->removeElement($mountPoint);
-
-        if ($this === $mountPoint->getShip()) {
-            $mountPoint->setShip(null);
-        }
-    }
-
-    /**
-     * Clears the mount points.
-     */
-    public function clearMountPoints()
-    {
-        $this->mountPoints = new ArrayCollection();
+        return $this->mountPoints[$offset]->getEquipment();
     }
 
     /**

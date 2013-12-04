@@ -8,6 +8,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use DeepSpaceOne\GameBundle\Entity\Good;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Range;
 
 /**
  * Good controller.
@@ -43,10 +46,10 @@ class GoodController extends Controller
      */
     public function newAction()
     {
-        // TASK 1: create form
+        $form = $this->createCreateForm();
 
         return array(
-            // TASK 1: pass form to view
+            'form' => $form->createView(),
         );
     }
 
@@ -59,21 +62,24 @@ class GoodController extends Controller
      */
     public function createAction(Request $request)
     {
-        // TASK 1: create form and handle the request
+        $form = $this->createCreateForm();
 
-        // TASK 1: update if condition
-        if (false) {
-            // TASK 1: create good
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $good = new Good();
+            $good->setName($form->get('name')->getData());
+            $good->setPricePerTon($form->get('price')->getData());
 
             $em = $this->getDoctrine()->getManager();
-            // TASK 1: persist good
+            $em->persist($good);
             $em->flush();
 
             return $this->redirect($this->generateUrl('goods'));
         }
 
         return array(
-            // TASK 1: pass form to view
+            'form' => $form->createView(),
         );
     }
 
@@ -87,13 +93,12 @@ class GoodController extends Controller
     public function editAction(Good $good)
     {
         $deleteForm = $this->createDeleteForm($good);
-
-        // TASK 1: create edit form for $good
+        $editForm = $this->createEditForm($good);
 
         return array(
             'good' => $good,
             'delete_form' => $deleteForm->createView(),
-            // TASK 1: pass form to view
+            'edit_form' => $editForm->createView(),
         );
     }
 
@@ -107,12 +112,13 @@ class GoodController extends Controller
     public function updateAction(Request $request, Good $good)
     {
         $deleteForm = $this->createDeleteForm($good);
+        $editForm = $this->createEditForm($good);
 
-        // TASK 1: create edit form and handle the request
+        $editForm->handleRequest($request);
 
-        // TASK 1: update if condition
-        if (false) {
-            // TASK 1: update $good entity
+        if ($editForm->isValid()) {
+            $good->setName($editForm->get('name')->getData());
+            $good->setPricePerTon($editForm->get('price')->getData());
 
             $em = $this->getDoctrine()->getManager();
             $em->flush();
@@ -123,7 +129,7 @@ class GoodController extends Controller
         return array(
             'good' => $good,
             'delete_form' => $deleteForm->createView(),
-            // TASK 1: pass form to view
+            'edit_form' => $editForm->createView(),
         );
     }
 
@@ -148,7 +154,66 @@ class GoodController extends Controller
     }
 
     /**
-     * Creates a form to delete a Good entity.
+     * Creates a preconfigured form builder for editing Good entities.
+     *
+     * @return \Symfony\Component\Form\FormBuilderInterface The form builder
+     */
+    private function createGoodFormBuilder()
+    {
+        return $this->createFormBuilder()
+            ->add('name', null, array(
+                'constraints' => array(
+                    new NotNull(),
+                    new Length(array('min' => 2, 'minMessage' => 'Please enter at least 2 characters.')),
+                ),
+            ))
+            ->add('price', 'integer', array(
+                'constraints' => array(
+                    new NotNull(),
+                    new Range(array('min' => 1, 'minMessage' => 'Please enter a value of 1 or more.')),
+                ),
+            ))
+        ;
+    }
+
+    /**
+     * Creates a form to create a new Good entity.
+     *
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function createCreateForm()
+    {
+        return $this->createGoodFormBuilder()
+            ->setAction($this->generateUrl('goods_create'))
+            ->add('create', 'submit')
+            ->setData(array(
+                'price' => 10,
+            ))
+            ->getForm();
+    }
+
+    /**
+     * Creates a form to edit an existing Good entity.
+     *
+     * @param Good $good The good
+     *
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function createEditForm(Good $good)
+    {
+        return $this->createGoodFormBuilder()
+            ->setAction($this->generateUrl('goods_update', array('id' => $good->getId())))
+            ->setMethod('PUT')
+            ->add('update', 'submit')
+            ->setData(array(
+                'name' => $good->getName(),
+                'price' => $good->getPricePerTon(),
+            ))
+            ->getForm();
+    }
+
+    /**
+     * Creates a form to delete a Good entity by id.
      *
      * @param Good $good The good
      *

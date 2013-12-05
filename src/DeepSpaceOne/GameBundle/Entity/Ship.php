@@ -20,6 +20,7 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ExecutionContextInterface;
 
 /**
  * A space ship.
@@ -276,5 +277,27 @@ class Ship
     public function clearPayload()
     {
         $this->payload = new ArrayCollection();
+    }
+
+    /**
+     * @Assert\False(message="The payload is too heavy.")
+     */
+    public function isPayloadTooHeavy()
+    {
+        return $this->getPayloadMass() > $this->getPayloadCapacity();
+    }
+
+    /**
+     * @Assert\Callback
+     */
+    public function validatePayloadMass(ExecutionContextInterface $context)
+    {
+        if ($this->getPayloadMass() > $this->getPayloadCapacity()) {
+            $context->addViolationAt(
+                'payload',
+                'The payload is too heavy. The ship can carry a maximum of %payload_capacity% tons.',
+                array('%payload_capacity%' => $this->getPayloadCapacity())
+            );
+        }
     }
 }

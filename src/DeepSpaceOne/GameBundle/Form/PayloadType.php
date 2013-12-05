@@ -15,8 +15,8 @@ class PayloadType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('mass')
-            ->add('good')
+            ->add('mass', null, array('error_bubbling' => true))
+            ->add('good', null, array('error_bubbling' => true))
         ;
     }
 
@@ -27,6 +27,7 @@ class PayloadType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => 'DeepSpaceOne\GameBundle\Entity\Payload',
+            'error_bubbling' => false,
         ));
     }
 

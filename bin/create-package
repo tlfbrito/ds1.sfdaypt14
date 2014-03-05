@@ -34,7 +34,14 @@ run git checkout master
 # Remove the remote which points to the local file system
 run git remote rm origin
 
+# Compress the repository
+run git gc
+
 # Package the whole thing
+if [ -f $DIR/$NAME.zip ]; then
+    run rm $DIR/$NAME.zip
+fi
+
 run cd $DIR/tmp
 run zip -r $DIR/$NAME.zip $NAME
 

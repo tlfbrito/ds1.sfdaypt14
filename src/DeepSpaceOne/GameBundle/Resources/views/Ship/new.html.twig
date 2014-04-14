@@ -3,6 +3,7 @@
 {% set active_section = 'ships' %}
 
 {% block body -%}
+<div id="ajax-ship-target">
     <div class="page-header">
         <h1>Buy Ship</h1>
     </div>
@@ -13,4 +14,5 @@
     <ul class="record_actions list-inline">
         <li><a href="{{ path('ships') }}" class="btn btn-default"><span class="glyphicon glyphicon-list"></span> Back to the list</a></li>
     </ul>
+</div>
 {% endblock %}
